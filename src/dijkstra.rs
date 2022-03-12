@@ -1,10 +1,10 @@
 //! Calculate Dijkstra influence map
-//! 
+//!
 //! http://www.roguebasin.com/index.php?title=The_Incredible_Power_of_Dijkstra_Maps
-//! 
+//!
 //! This algorithm calculates cost (distance) of moving from the given starting point
 //! to the each point on the map. Point which are not reachable will get f32::MAX value.
-//! 
+//!
 //! Example generator usage:
 //! ---
 //! use rand::prelude::*;
@@ -14,21 +14,20 @@
 //!     map::{Map, TileType},
 //!     starting_point::{AreaStartingPosition, XStart, YStart}
 //! };
-//! 
+//!
 //! let mut rng = StdRng::seed_from_u64(100);
 //! let mut map = Map::new(80, 50);
 //! map.set_tile(10, 10, TileType::Floor);
 //! let modifier = AreaStartingPosition::new(XStart::LEFT, YStart::TOP);
 //! let new_map = modifier.modify_map(&mut rng, &map);
-//! 
+//!
 //! assert_eq!(new_map.starting_point, Some(Point::new(10, 10)));
 //! ---
-//! 
+//!
 
-use std::{collections::VecDeque, marker::PhantomData};
-use std::f32::MAX;
 use super::map::{BuilderData, Map};
-
+use std::f32::MAX;
+use std::{collections::VecDeque, marker::PhantomData};
 
 /// Representation of a Dijkstra flow map.
 /// map is a vector of floats, having a size equal to size_x * size_y (one per tile).
@@ -43,9 +42,9 @@ pub struct DijkstraMap<D> {
 }
 
 impl<D: BuilderData> DijkstraMap<D> {
-    //! Construct a new Dijkstra map, ready to run. 
+    //! Construct a new Dijkstra map, ready to run.
     pub fn new(map: &Map<D>) -> DijkstraMap<D> {
-        let len =  map.width * map.height;
+        let len = map.width * map.height;
         let tiles = vec![MAX; len];
         let mut d = DijkstraMap {
             tiles: tiles,
@@ -79,8 +78,12 @@ impl<D: BuilderData> DijkstraMap<D> {
                 let idx = self.xy_idx(x, y);
                 let new_depth = depth + add_depth;
                 let prev_depth = self.tiles[idx];
-                if new_depth >= prev_depth { continue; }
-                if new_depth >= self.max_depth { continue; }
+                if new_depth >= prev_depth {
+                    continue;
+                }
+                if new_depth >= self.max_depth {
+                    continue;
+                }
                 self.tiles[idx] = new_depth;
                 open_list.push_back(((x, y), new_depth));
             }
@@ -88,7 +91,7 @@ impl<D: BuilderData> DijkstraMap<D> {
     }
 
     fn xy_idx(&self, x: usize, y: usize) -> usize {
-        (y * self.size_x ) + x 
+        (y * self.size_x) + x
     }
 }
 
@@ -112,13 +115,19 @@ mod tests {
         map.starting_point = Some(Point::new(8, 1));
         let dm = DijkstraMap::new(&map);
 
-        println!("{:?}", &dm.tiles.iter().map(|&v| if v == f32::MAX {9.0} else {v}).collect::<Vec<f32>>());
+        println!(
+            "{:?}",
+            &dm.tiles
+                .iter()
+                .map(|&v| if v == f32::MAX { 9.0 } else { v })
+                .collect::<Vec<f32>>()
+        );
 
         assert_eq!(dm.size_x, 10);
         assert_eq!(dm.size_y, 3);
         for i in 0..10 {
             assert_eq!(dm.tiles[i], MAX);
-            assert_eq!(dm.tiles[2*dm.size_x + i], MAX);
+            assert_eq!(dm.tiles[2 * dm.size_x + i], MAX);
             let idx = dm.size_x + i;
             if i < 3 || i == 9 {
                 assert_eq!(dm.tiles[idx], MAX);
@@ -139,10 +148,9 @@ mod tests {
         let mut map = Map::<NoData>::from_string(map_str);
         map.starting_point = Some(Point::new(2, 2));
         let dm = DijkstraMap::new(&map);
-        let expected = [MAX, MAX, MAX, MAX,
-                        MAX, 1.45, 1.0, MAX, 
-                        MAX, 1.0, 0.0, MAX, 
-                        MAX, MAX, MAX, MAX];
+        let expected = [
+            MAX, MAX, MAX, MAX, MAX, 1.45, 1.0, MAX, MAX, 1.0, 0.0, MAX, MAX, MAX, MAX, MAX,
+        ];
 
         assert_eq!(dm.tiles, expected);
     }
@@ -158,10 +166,11 @@ mod tests {
         let mut map = Map::<NoData>::from_string(map_str);
         map.starting_point = Some(Point::new(8, 2));
         let dm = DijkstraMap::new(&map);
-        let expected = [MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX, 
-                        MAX, 7.45, 6.45, 5.45, 4.45, 3.45, 2.45, 1.45, 1.0, MAX, 
-                        MAX, 7.9, 6.9, MAX, 4.0, 3.0, 2.0, 1.0, 0.0, MAX, 
-                        MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX];
+        let expected = [
+            MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX, MAX, 7.45, 6.45, 5.45, 4.45, 3.45,
+            2.45, 1.45, 1.0, MAX, MAX, 7.9, 6.9, MAX, 4.0, 3.0, 2.0, 1.0, 0.0, MAX, MAX, MAX, MAX,
+            MAX, MAX, MAX, MAX, MAX, MAX, MAX,
+        ];
 
         for (v, e) in dm.tiles.iter().zip(expected.iter()) {
             assert!(f32::abs(v - e) <= 0.01);

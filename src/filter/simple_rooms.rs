@@ -1,32 +1,31 @@
 //! Random rooms map generator.
-//! 
-//! Try to generate rooms of different size to fill the map area. 
+//!
+//! Try to generate rooms of different size to fill the map area.
 //! Rooms will not overlap.
-//! 
+//!
 //! Example generator usage:
 //! ```
 //! use rand::prelude::*;
 //! use mapgen::{MapFilter, Map, NoData};
 //! use mapgen::filter::SimpleRooms;
-//! 
+//!
 //! let mut rng = StdRng::seed_from_u64(100);
 //! let gen = SimpleRooms::<NoData>::new();
 //! let map = gen.modify_map(&mut rng, &Map::new(80, 50));
-//! 
+//!
 //! assert_eq!(map.width, 80);
 //! assert_eq!(map.height, 50);
 //! ```
-//! 
+//!
 
 use std::marker::PhantomData;
 
-use rand::prelude::*;
-use crate::BuilderData;
-use crate::MapFilter;
 use crate::geometry::Rect;
 use crate::random::Rng;
+use crate::BuilderData;
 use crate::Map;
-
+use crate::MapFilter;
+use rand::prelude::*;
 
 pub struct SimpleRooms<D: BuilderData> {
     max_rooms: usize,
@@ -36,15 +35,14 @@ pub struct SimpleRooms<D: BuilderData> {
 }
 
 impl<D: BuilderData> MapFilter<D> for SimpleRooms<D> {
-    fn modify_map(&self, rng: &mut StdRng, map: &Map<D>)  -> Map<D> {
+    fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build_rooms(map, rng)
     }
 }
 
-
 impl<D: BuilderData> SimpleRooms<D> {
     pub fn new() -> Box<SimpleRooms<D>> {
-        Box::new(SimpleRooms{
+        Box::new(SimpleRooms {
             max_rooms: 30,
             min_room_size: 6,
             max_room_size: 10,
@@ -52,7 +50,7 @@ impl<D: BuilderData> SimpleRooms<D> {
         })
     }
 
-    fn build_rooms(&self, map: &Map<D>, rng : &mut StdRng) -> Map<D> {
+    fn build_rooms(&self, map: &Map<D>, rng: &mut StdRng) -> Map<D> {
         let mut new_map = map.clone();
 
         // Create room dimensions
@@ -67,7 +65,7 @@ impl<D: BuilderData> SimpleRooms<D> {
                 new_map.add_room(new_room);
             }
         }
-        
+
         new_map
     }
 }

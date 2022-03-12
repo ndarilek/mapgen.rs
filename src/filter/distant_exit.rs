@@ -1,18 +1,17 @@
 //! Add exit point to the map
-//! 
+//!
 //! This modifier will try to add exit point as far as possible from the starting point.
 //! It means that starting point have to be set before this Modyfier will start.
-//! 
+//!
 
+use crate::dijkstra::DijkstraMap;
+use crate::geometry::Point;
+use crate::BuilderData;
+use crate::Map;
+use crate::MapFilter;
+use rand::prelude::StdRng;
 use std::f32;
 use std::marker::PhantomData;
-use rand::prelude::StdRng;
-use crate::BuilderData;
-use crate::geometry::Point;
-use crate::MapFilter;
-use crate::Map;
-use crate::dijkstra::DijkstraMap;
-
 
 /// Add exist position to the map based on the distance from the start point.
 pub struct DistantExit<D: BuilderData> {
@@ -20,7 +19,7 @@ pub struct DistantExit<D: BuilderData> {
 }
 
 impl<D: BuilderData> MapFilter<D> for DistantExit<D> {
-    fn modify_map(&self, _: &mut StdRng, map: &Map<D>)  -> Map<D> {
+    fn modify_map(&self, _: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(map)
     }
 }
@@ -43,7 +42,7 @@ impl<D: BuilderData> DistantExit<D> {
             if value < f32::MAX && value > best_value {
                 best_value = value;
                 best_idx = i;
-            } 
+            }
         }
         let x = best_idx % map.width;
         let y = best_idx / map.width;
@@ -57,11 +56,11 @@ impl<D: BuilderData> DistantExit<D> {
 /// ------------------------------------------------------------------------------------------------
 #[cfg(test)]
 mod tests {
-    use rand::prelude::*;
-    use super::*;
     use super::MapFilter;
+    use super::*;
     use crate::geometry::Point;
     use crate::map::{Map, NoData};
+    use rand::prelude::*;
 
     #[test]
     fn test_exit() {

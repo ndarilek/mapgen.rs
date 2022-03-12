@@ -1,6 +1,5 @@
-use rand::prelude::*;
 use mapgen::*;
-
+use rand::prelude::*;
 
 fn main() {
     let mut rng = StdRng::seed_from_u64(907647352);

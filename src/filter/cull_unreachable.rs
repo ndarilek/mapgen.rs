@@ -1,16 +1,15 @@
 //! Remove unreachable areas from the map.
-//! 
+//!
 //! This modifier reiquires starting position on the map.
 //! It will add wall on every tile which is not accessible from the starting point.
-//! 
+//!
 
 use std::marker::PhantomData;
 
-use rand::prelude::StdRng;
+use crate::dijkstra::DijkstraMap;
 use crate::MapFilter;
 use crate::{BuilderData, Map, Tile};
-use crate::dijkstra::DijkstraMap;
-
+use rand::prelude::StdRng;
 
 /// Remove unreachable areas from the map.
 pub struct CullUnreachable<D: BuilderData> {
@@ -18,7 +17,7 @@ pub struct CullUnreachable<D: BuilderData> {
 }
 
 impl<D: BuilderData> MapFilter<D> for CullUnreachable<D> {
-    fn modify_map(&self, _: &mut StdRng, map: &Map<D>)  -> Map<D> {
+    fn modify_map(&self, _: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(map)
     }
 }
@@ -53,11 +52,11 @@ impl<D: BuilderData> CullUnreachable<D> {
 /// ------------------------------------------------------------------------------------------------
 #[cfg(test)]
 mod tests {
-    use rand::prelude::*;
-    use super::*;
     use super::MapFilter;
+    use super::*;
     use crate::geometry::Point;
     use crate::map::{Map, NoData};
+    use rand::prelude::*;
 
     #[test]
     fn test_culling() {
@@ -74,7 +73,6 @@ mod tests {
         ##########
         ";
         let expected_map = Map::<NoData>::from_string(expected_map_str);
-
 
         let modifier = CullUnreachable::new();
         let mut rng = StdRng::seed_from_u64(0);

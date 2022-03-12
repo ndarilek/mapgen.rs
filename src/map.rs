@@ -1,15 +1,14 @@
 //! Map structure contains information about tiles and other elements on the map.
-//! 
+//!
 //! Map is created with generators and then can by modified with MapModifiers.
-//! 
-//! This structure is not intented to be your map in the game (But can be used as one). 
+//!
+//! This structure is not intented to be your map in the game (But can be used as one).
 //! Rather the information from this map will be copied to the structures required by
 //! specific game.
-//! 
+//!
 
+use super::geometry::{usize_abs, Point, Rect};
 use std::fmt;
-use super::geometry::{Point, Rect, usize_abs};
-
 
 #[derive(PartialEq, Copy, Clone, Debug, Eq, Hash)]
 pub struct Tile {
@@ -18,8 +17,12 @@ pub struct Tile {
 }
 
 #[derive(PartialEq, Copy, Clone)]
-pub enum Symmetry { None, Horizontal, Vertical, Both }
-
+pub enum Symmetry {
+    None,
+    Horizontal,
+    Vertical,
+    Both,
+}
 
 /// Arbitrary data associated with each map
 pub trait BuilderData: Clone + Default {}
@@ -33,9 +36,9 @@ impl BuilderData for NoData {}
 /// Map data
 #[derive(Default, Clone)]
 pub struct Map<D> {
-    pub tiles : Vec<Tile>,
-    pub width : usize,
-    pub height : usize,
+    pub tiles: Vec<Tile>,
+    pub width: usize,
+    pub height: usize,
     pub starting_point: Option<Point>,
     pub exit_point: Option<Point>,
     pub rooms: Vec<Rect>,
@@ -45,13 +48,13 @@ pub struct Map<D> {
 
 impl Tile {
     pub fn new(is_blocked: bool, index: usize) -> Tile {
-        Tile { is_blocked, index}
+        Tile { is_blocked, index }
     }
 
     pub fn wall() -> Tile {
         Tile::new(true, 0)
     }
-    
+
     pub fn floor() -> Tile {
         Tile::new(false, 0)
     }
@@ -70,29 +73,34 @@ impl Tile {
 }
 
 impl<D: BuilderData> Map<D> {
-
     /// Generates an empty map, consisting entirely of solid walls
     pub fn new(width: usize, height: usize) -> Map<D> {
-        let map_tile_count = width*height;
-        Map{
-            tiles : vec![Tile::wall(); map_tile_count],
+        let map_tile_count = width * height;
+        Map {
+            tiles: vec![Tile::wall(); map_tile_count],
             width,
             height,
             starting_point: None,
             exit_point: None,
             rooms: Vec::new(),
             corridors: Vec::new(),
-            data: Default::default()
+            data: Default::default(),
         }
     }
 
     /// Create map from given string
     pub fn from_string(map_string: &str) -> Map<D> {
-        let lines: Vec<&str> = map_string.split("\n")
+        let lines: Vec<&str> = map_string
+            .split("\n")
             .map(|l| l.trim())
             .filter(|l| l.len() > 0)
             .collect();
-        let cols = lines.iter().map(|l| l.len()).max().get_or_insert(1).to_owned();
+        let cols = lines
+            .iter()
+            .map(|l| l.len())
+            .max()
+            .get_or_insert(1)
+            .to_owned();
         let rows = lines.len();
         let mut map = Map::new(cols, rows);
 
@@ -122,22 +130,38 @@ impl<D: BuilderData> Map<D> {
         let mut exits = Vec::new();
 
         // Cardinal directions
-        if x > 0 && self.is_exit_valid(x-1, y) { exits.push((x-1, y, 1.0)) };
-        if self.is_exit_valid(x+1, y) { exits.push((x+1, y, 1.0)) };
-        if y > 0 && self.is_exit_valid(x, y-1) { exits.push((x, y-1, 1.0)) };
-        if self.is_exit_valid(x, y+1) { exits.push((x, y+1, 1.0)) };
+        if x > 0 && self.is_exit_valid(x - 1, y) {
+            exits.push((x - 1, y, 1.0))
+        };
+        if self.is_exit_valid(x + 1, y) {
+            exits.push((x + 1, y, 1.0))
+        };
+        if y > 0 && self.is_exit_valid(x, y - 1) {
+            exits.push((x, y - 1, 1.0))
+        };
+        if self.is_exit_valid(x, y + 1) {
+            exits.push((x, y + 1, 1.0))
+        };
 
         // Diagonals
-        if x > 0 && y > 0 && self.is_exit_valid(x-1, y-1) { exits.push((x-1, y-1, 1.45)); }
-        if y > 0 && self.is_exit_valid(x+1, y-1) { exits.push((x+1, y-1, 1.45)); }
-        if x > 0 && self.is_exit_valid(x-1, y+1) { exits.push((x-1, y+1, 1.45)); }
-        if self.is_exit_valid(x+1, y+1) { exits.push((x+1, y+1, 1.45)); }
+        if x > 0 && y > 0 && self.is_exit_valid(x - 1, y - 1) {
+            exits.push((x - 1, y - 1, 1.45));
+        }
+        if y > 0 && self.is_exit_valid(x + 1, y - 1) {
+            exits.push((x + 1, y - 1, 1.45));
+        }
+        if x > 0 && self.is_exit_valid(x - 1, y + 1) {
+            exits.push((x - 1, y + 1, 1.45));
+        }
+        if self.is_exit_valid(x + 1, y + 1) {
+            exits.push((x + 1, y + 1, 1.45));
+        }
 
         exits
-    }    
- 
+    }
+
     // Check if given tile can be accessed
-    fn is_exit_valid(&self, x:usize, y:usize) -> bool {
+    fn is_exit_valid(&self, x: usize, y: usize) -> bool {
         self.at(x, y).is_blocked == false
     }
 
@@ -150,9 +174,9 @@ impl<D: BuilderData> Map<D> {
     }
 
     pub fn xy_idx(&self, x: usize, y: usize) -> usize {
-        y * self.width + x        
+        y * self.width + x
     }
-    
+
     /// Create room on the map at given location
     /// Room is created by setting all tiles in the room to the Floor
     pub fn add_room(&mut self, rect: Rect) {
@@ -164,7 +188,7 @@ impl<D: BuilderData> Map<D> {
         self.rooms.push(rect);
     }
 
-    pub fn add_corridor(&mut self, from: Point, to:Point) {
+    pub fn add_corridor(&mut self, from: Point, to: Point) {
         let mut corridor = Vec::new();
         let mut x = from.x;
         let mut y = from.y;
@@ -234,9 +258,13 @@ impl<D: BuilderData> Map<D> {
             }
             _ => {
                 let half_brush_size = brush_size / 2;
-                for brush_y in y-half_brush_size .. y+half_brush_size {
-                    for brush_x in x-half_brush_size .. x+half_brush_size {
-                        if brush_x > 1 && brush_x < self.width-1 && brush_y > 1 && brush_y < self.height-1 {
+                for brush_y in y - half_brush_size..y + half_brush_size {
+                    for brush_x in x - half_brush_size..x + half_brush_size {
+                        if brush_x > 1
+                            && brush_x < self.width - 1
+                            && brush_y > 1
+                            && brush_y < self.height - 1
+                        {
                             self.set_tile(brush_x, brush_y, Tile::floor());
                         }
                     }
@@ -250,7 +278,7 @@ impl<D: BuilderData> fmt::Display for Map<D> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for y in 0..self.height {
             let bytes: Vec<u8> = (0..self.width)
-                .map(|x| if self.at(x, y).is_blocked {'#'} else {' '} as u8)
+                .map(|x| if self.at(x, y).is_blocked { '#' } else { ' ' } as u8)
                 .collect();
             let line = String::from_utf8(bytes).expect("Can't convert map to string");
             let _ = write!(f, "{}\n", line);
@@ -312,7 +340,7 @@ mod tests {
         assert_eq!(exists, expected_exists);
     }
 
-        #[test]
+    #[test]
     fn test_create_room() {
         let mut map = Map::<NoData>::new(5, 5);
         map.add_room(Rect::new(1, 1, 3, 3));
@@ -346,7 +374,6 @@ mod tests {
 
         assert_eq!(map.tiles, expected_map.tiles);
     }
-
 
     #[test]
     fn test_available_exists() {

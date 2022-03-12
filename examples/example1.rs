@@ -1,16 +1,9 @@
 use mapgen::{
-    MapBuilder,
-    NoData,
     filter::{
-        NoiseGenerator, 
-        CellularAutomata,
-        CullUnreachable,
-        AreaStartingPosition,
-        XStart, 
-        YStart,
+        AreaStartingPosition, CellularAutomata, CullUnreachable, NoiseGenerator, XStart, YStart,
     },
+    MapBuilder, NoData,
 };
-
 
 fn main() {
     let map = MapBuilder::<NoData>::new(20, 20)
@@ -18,7 +11,7 @@ fn main() {
         .with(CellularAutomata::new())
         .with(AreaStartingPosition::new(XStart::CENTER, YStart::CENTER))
         .with(CullUnreachable::new())
-        .build();  
-    
-        println!("{:}", &map);
+        .build();
+
+    println!("{:}", &map);
 }

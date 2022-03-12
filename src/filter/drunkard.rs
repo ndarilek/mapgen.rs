@@ -3,34 +3,36 @@
 //! use rand::prelude::*;
 //! use mapgen::{Map, MapFilter, NoData};
 //! use mapgen::filter::DrunkardsWalk;
-//! 
+//!
 //! let mut rng = StdRng::seed_from_u64(100);
 //! let gen = DrunkardsWalk::<NoData>::open_area();
 //! let map = gen.modify_map(&mut rng, &Map::new(80, 50));
-//! 
+//!
 //! assert_eq!(map.width, 80);
 //! assert_eq!(map.height, 50);
 //! ```
-//! 
+//!
 
 use std::marker::PhantomData;
 
-use rand::prelude::*;
 use crate::MapFilter;
 use crate::{
-    BuilderData,
-    map::{Map, Symmetry, Tile},
     geometry::Point,
-    random::Rng
+    map::{Map, Symmetry, Tile},
+    random::Rng,
+    BuilderData,
 };
-
+use rand::prelude::*;
 
 #[derive(PartialEq, Copy, Clone)]
-pub enum DrunkSpawnMode { StartingPoint, Random }
+pub enum DrunkSpawnMode {
+    StartingPoint,
+    Random,
+}
 
 pub struct DrunkardsWalk<D: BuilderData> {
-    spawn_mode : DrunkSpawnMode,
-    drunken_lifetime : i32,
+    spawn_mode: DrunkSpawnMode,
+    drunken_lifetime: i32,
     floor_percent: f32,
     brush_size: usize,
     symmetry: Symmetry,
@@ -38,19 +40,20 @@ pub struct DrunkardsWalk<D: BuilderData> {
 }
 
 impl<D: BuilderData> MapFilter<D> for DrunkardsWalk<D> {
-    fn modify_map(&self, rng: &mut StdRng, map: &Map<D>)  -> Map<D> {
+    fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(rng, map)
     }
 }
 
 impl<D: BuilderData> DrunkardsWalk<D> {
-    pub fn new( spawn_mode: DrunkSpawnMode, 
-                drunken_lifetime: i32, 
-                floor_percent: f32,
-                brush_size: usize, 
-                symmetry: Symmetry) -> Box<DrunkardsWalk<D>>
-    {
-        Box::new(DrunkardsWalk{
+    pub fn new(
+        spawn_mode: DrunkSpawnMode,
+        drunken_lifetime: i32,
+        floor_percent: f32,
+        brush_size: usize,
+        symmetry: Symmetry,
+    ) -> Box<DrunkardsWalk<D>> {
+        Box::new(DrunkardsWalk {
             spawn_mode,
             drunken_lifetime,
             floor_percent,
@@ -79,18 +82,18 @@ impl<D: BuilderData> DrunkardsWalk<D> {
     pub fn fearful_symmetry() -> Box<DrunkardsWalk<D>> {
         Self::new(DrunkSpawnMode::Random, 400, 0.4, 1, Symmetry::Both)
     }
-    
+
     fn build(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         let mut new_map = map.clone();
         // Set a central starting point
-        let starting_position = Point::new( new_map.width / 2, new_map.height / 2 );
+        let starting_position = Point::new(new_map.width / 2, new_map.height / 2);
         new_map.set_tile(starting_position.x, starting_position.y, Tile::floor());
 
         let total_tiles = new_map.width * new_map.height;
         let desired_floor_tiles = (self.floor_percent * total_tiles as f32) as usize;
         let mut floor_tile_count = new_map.tiles.iter().filter(|a| a.is_walkable()).count();
         let mut digger_count = 0;
-        while floor_tile_count  < desired_floor_tiles {
+        while floor_tile_count < desired_floor_tiles {
             let mut drunk_x;
             let mut drunk_y;
             match self.spawn_mode {
@@ -111,15 +114,31 @@ impl<D: BuilderData> DrunkardsWalk<D> {
             let mut drunk_life = self.drunken_lifetime;
 
             while drunk_life > 0 {
-                new_map.set_tile(drunk_x, drunk_y, Tile::wall()); 
+                new_map.set_tile(drunk_x, drunk_y, Tile::wall());
                 new_map.paint(self.symmetry, self.brush_size, drunk_x, drunk_y);
 
                 let stagger_direction = rng.roll_dice(1, 4);
                 match stagger_direction {
-                    1 => { if drunk_x > 1 { drunk_x -= 1; } }
-                    2 => { if drunk_x < new_map.width-2 { drunk_x += 1; } }
-                    3 => { if drunk_y > 1 { drunk_y -=1; } }
-                    _ => { if drunk_y < new_map.height-2 { drunk_y += 1; } }
+                    1 => {
+                        if drunk_x > 1 {
+                            drunk_x -= 1;
+                        }
+                    }
+                    2 => {
+                        if drunk_x < new_map.width - 2 {
+                            drunk_x += 1;
+                        }
+                    }
+                    3 => {
+                        if drunk_y > 1 {
+                            drunk_y -= 1;
+                        }
+                    }
+                    _ => {
+                        if drunk_y < new_map.height - 2 {
+                            drunk_y += 1;
+                        }
+                    }
                 }
 
                 drunk_life -= 1;
