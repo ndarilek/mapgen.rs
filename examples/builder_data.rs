@@ -26,7 +26,7 @@ fn main() {
         .with(CellularAutomata::new())
         .with(AreaStartingPosition::new(XStart::CENTER, YStart::CENTER))
         .with(CullUnreachable::new())
-        .with(Box::new(IncrementData::<MyData>))
+        .with(Box::new(IncrementData))
         .build();
 
     println!("{:}", &map);
