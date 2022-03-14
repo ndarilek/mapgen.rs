@@ -22,25 +22,24 @@ use std::marker::PhantomData;
 
 use crate::geometry::Rect;
 use crate::random::Rng;
-use crate::BuilderData;
 use crate::Map;
 use crate::MapFilter;
 use rand::prelude::*;
 
-pub struct SimpleRooms<D: BuilderData> {
+pub struct SimpleRooms<D> {
     max_rooms: usize,
     min_room_size: usize,
     max_room_size: usize,
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for SimpleRooms<D> {
+impl<D: Clone + Default> MapFilter<D> for SimpleRooms<D> {
     fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build_rooms(map, rng)
     }
 }
 
-impl<D: BuilderData> SimpleRooms<D> {
+impl<D: Clone + Default> SimpleRooms<D> {
     pub fn new() -> Box<SimpleRooms<D>> {
         Box::new(SimpleRooms {
             max_rooms: 30,

@@ -2,7 +2,7 @@ use mapgen::{
     filter::{
         AreaStartingPosition, CellularAutomata, CullUnreachable, NoiseGenerator, XStart, YStart,
     },
-    BuilderData, MapBuilder, MapFilter,
+    MapBuilder, MapFilter,
 };
 
 #[derive(Clone, Default)]
@@ -10,11 +10,9 @@ struct MyData {
     value: usize,
 }
 
-impl BuilderData for MyData {}
-
 struct IncrementData;
 
-impl<D: BuilderData> MapFilter<D> for IncrementData {
+impl<D: Clone + Default> MapFilter<D> for IncrementData {
     fn modify_map(&self, rng: &mut rand::prelude::StdRng, map: &mapgen::Map<D>) -> mapgen::Map<D> {
         let map = map.clone();
         map.data.value += 1;
@@ -28,7 +26,7 @@ fn main() {
         .with(CellularAutomata::new())
         .with(AreaStartingPosition::new(XStart::CENTER, YStart::CENTER))
         .with(CullUnreachable::new())
-        .with(Box::new(IncrementData))
+        .with(Box::new(IncrementData::<MyData>))
         .build();
 
     println!("{:}", &map);

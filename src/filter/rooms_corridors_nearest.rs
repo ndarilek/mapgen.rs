@@ -1,23 +1,22 @@
 //! Connect nearest rooms on the map with corridors
 //!
-use crate::BuilderData;
 use crate::Map;
 use crate::MapFilter;
 use rand::prelude::StdRng;
 use std::collections::HashSet;
 use std::marker::PhantomData;
 
-pub struct NearestCorridors<D: BuilderData> {
+pub struct NearestCorridors<D> {
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for NearestCorridors<D> {
+impl<D: Clone + Default> MapFilter<D> for NearestCorridors<D> {
     fn modify_map(&self, _: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.corridors(map)
     }
 }
 
-impl<D: BuilderData> NearestCorridors<D> {
+impl<D: Clone + Default> NearestCorridors<D> {
     pub fn new() -> Box<NearestCorridors<D>> {
         Box::new(NearestCorridors {
             phantom: PhantomData,

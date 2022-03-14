@@ -25,21 +25,21 @@ use std::marker::PhantomData;
 use crate::geometry::{Point, Rect};
 use crate::random::Rng;
 use crate::Map;
-use crate::{BuilderData, MapFilter};
+use crate::MapFilter;
 use rand::prelude::*;
 
-pub struct BspInterior<D: BuilderData> {
+pub struct BspInterior<D> {
     min_room_size: usize,
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for BspInterior<D> {
+impl<D: Clone + Default> MapFilter<D> for BspInterior<D> {
     fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(rng, map)
     }
 }
 
-impl<D: BuilderData> BspInterior<D> {
+impl<D: Clone + Default> BspInterior<D> {
     pub fn new() -> Box<BspInterior<D>> {
         Box::new(BspInterior {
             min_room_size: 8,

@@ -6,7 +6,6 @@
 
 use crate::dijkstra::DijkstraMap;
 use crate::geometry::Point;
-use crate::BuilderData;
 use crate::Map;
 use crate::MapFilter;
 use rand::prelude::StdRng;
@@ -14,17 +13,17 @@ use std::f32;
 use std::marker::PhantomData;
 
 /// Add exist position to the map based on the distance from the start point.
-pub struct DistantExit<D: BuilderData> {
+pub struct DistantExit<D> {
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for DistantExit<D> {
+impl<D: Clone + Default> MapFilter<D> for DistantExit<D> {
     fn modify_map(&self, _: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(map)
     }
 }
 
-impl<D: BuilderData> DistantExit<D> {
+impl<D: Clone + Default> DistantExit<D> {
     #[allow(dead_code)]
     pub fn new() -> Box<DistantExit<D>> {
         Box::new(DistantExit {

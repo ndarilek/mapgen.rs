@@ -34,7 +34,7 @@ pub mod map;
 pub mod metric;
 
 pub use filter::*;
-pub use map::{BuilderData, Map, NoData, Symmetry, Tile};
+pub use map::{Map, NoData, Symmetry, Tile};
 
 pub(crate) mod dijkstra;
 pub(crate) mod random;
@@ -44,18 +44,18 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Trait which should be implemented by map modifier.
 /// Modifier takes initiall map and apply changes to it.
-pub trait MapFilter<D: BuilderData> {
+pub trait MapFilter<D: Clone + Default> {
     fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D>;
 }
 
 /// Used to chain MapBuilder and MapModifiers to create the final map.
-pub struct MapBuilder<D> {
+pub struct MapBuilder<D: Clone + Default> {
     width: usize,
     height: usize,
     modifiers: Vec<Box<dyn MapFilter<D>>>,
 }
 
-impl<D: BuilderData> MapBuilder<D> {
+impl<D: Clone + Default> MapBuilder<D> {
     /// Create Map Builder with initial map generator
     pub fn new(width: usize, height: usize) -> MapBuilder<D> {
         MapBuilder {

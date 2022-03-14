@@ -24,18 +24,13 @@ pub enum Symmetry {
     Both,
 }
 
-/// Arbitrary data associated with each map
-pub trait BuilderData: Clone + Default {}
-
 /// No build data
 #[derive(Clone, Debug, Default)]
 pub struct NoData;
 
-impl BuilderData for NoData {}
-
 /// Map data
 #[derive(Default, Clone)]
-pub struct Map<D> {
+pub struct Map<D: Clone + Default> {
     pub tiles: Vec<Tile>,
     pub width: usize,
     pub height: usize,
@@ -72,7 +67,7 @@ impl Tile {
     }
 }
 
-impl<D: BuilderData> Map<D> {
+impl<D: Clone + Default> Map<D> {
     /// Generates an empty map, consisting entirely of solid walls
     pub fn new(width: usize, height: usize) -> Map<D> {
         let map_tile_count = width * height;
@@ -274,7 +269,7 @@ impl<D: BuilderData> Map<D> {
     }
 }
 
-impl<D: BuilderData> fmt::Display for Map<D> {
+impl<D: Clone + Default> fmt::Display for Map<D> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for y in 0..self.height {
             let bytes: Vec<u8> = (0..self.width)

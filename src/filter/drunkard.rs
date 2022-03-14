@@ -20,7 +20,6 @@ use crate::{
     geometry::Point,
     map::{Map, Symmetry, Tile},
     random::Rng,
-    BuilderData,
 };
 use rand::prelude::*;
 
@@ -30,7 +29,7 @@ pub enum DrunkSpawnMode {
     Random,
 }
 
-pub struct DrunkardsWalk<D: BuilderData> {
+pub struct DrunkardsWalk<D> {
     spawn_mode: DrunkSpawnMode,
     drunken_lifetime: i32,
     floor_percent: f32,
@@ -39,13 +38,13 @@ pub struct DrunkardsWalk<D: BuilderData> {
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for DrunkardsWalk<D> {
+impl<D: Clone + Default> MapFilter<D> for DrunkardsWalk<D> {
     fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(rng, map)
     }
 }
 
-impl<D: BuilderData> DrunkardsWalk<D> {
+impl<D: Clone + Default> DrunkardsWalk<D> {
     pub fn new(
         spawn_mode: DrunkSpawnMode,
         drunken_lifetime: i32,

@@ -6,12 +6,11 @@
 
 use super::dijkstra::DijkstraMap;
 use super::map::Map;
-use super::BuilderData;
 
 /// This metric calculates the percentage of walkable cells (Floor).
 /// If this number is very low (like < 10%) then it means that the map
 /// is probably to degenerated and shouldn't be used
-pub fn density<D>(map: &Map<D>) -> f32 {
+pub fn density<D: Clone + Default>(map: &Map<D>) -> f32 {
     let floor_count = map.tiles.iter().filter(|&t| t.is_walkable()).count();
     floor_count as f32 / map.tiles.len() as f32
 }
@@ -19,7 +18,7 @@ pub fn density<D>(map: &Map<D>) -> f32 {
 /// Calculate the length of the shortes path from the starting point
 /// to the exit.
 /// If this path is very short, then the map is probably degenerated.
-pub fn path_length<D: BuilderData>(map: &Map<D>) -> f32 {
+pub fn path_length<D: Clone + Default>(map: &Map<D>) -> f32 {
     if map.starting_point.is_none() {
         return 0.0;
     }

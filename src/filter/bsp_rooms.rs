@@ -22,23 +22,22 @@ use std::marker::PhantomData;
 
 use crate::geometry::Rect;
 use crate::random::Rng;
-use crate::BuilderData;
 use crate::Map;
 use crate::MapFilter;
 use rand::prelude::*;
 
-pub struct BspRooms<D: BuilderData> {
+pub struct BspRooms<D> {
     max_split: usize,
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for BspRooms<D> {
+impl<D: Clone + Default> MapFilter<D> for BspRooms<D> {
     fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build_rooms(map, rng)
     }
 }
 
-impl<D: BuilderData> BspRooms<D> {
+impl<D: Clone + Default> BspRooms<D> {
     pub fn new() -> Box<BspRooms<D>> {
         Box::new(BspRooms {
             max_split: 240,
@@ -152,10 +151,8 @@ impl<D: BuilderData> BspRooms<D> {
                 if y < 1 {
                     can_build = false;
                 }
-                if can_build {
-                    if map.at(x as usize, y as usize).is_walkable() {
-                        can_build = false;
-                    }
+                if can_build && map.at(x as usize, y as usize).is_walkable() {
+                    can_build = false;
                 }
             }
         }

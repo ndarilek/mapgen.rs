@@ -25,7 +25,7 @@
 //! ---
 //!
 
-use super::map::{BuilderData, Map};
+use super::map::Map;
 use std::f32::MAX;
 use std::{collections::VecDeque, marker::PhantomData};
 
@@ -41,13 +41,13 @@ pub struct DijkstraMap<D> {
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> DijkstraMap<D> {
+impl<D: Clone + Default> DijkstraMap<D> {
     //! Construct a new Dijkstra map, ready to run.
     pub fn new(map: &Map<D>) -> DijkstraMap<D> {
         let len = map.width * map.height;
         let tiles = vec![MAX; len];
         let mut d = DijkstraMap {
-            tiles: tiles,
+            tiles,
             size_x: map.width,
             size_y: map.height,
             max_depth: len as f32,

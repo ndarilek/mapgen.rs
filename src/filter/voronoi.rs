@@ -18,23 +18,23 @@ use std::marker::PhantomData;
 use crate::MapFilter;
 use crate::{
     geometry::Point,
-    map::{BuilderData, Map, Tile},
+    map::{Map, Tile},
     random::Rng,
 };
 use rand::prelude::*;
 
-pub struct VoronoiHive<D: BuilderData> {
+pub struct VoronoiHive<D> {
     n_seeds: usize,
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for VoronoiHive<D> {
+impl<D: Clone + Default> MapFilter<D> for VoronoiHive<D> {
     fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(rng, map)
     }
 }
 
-impl<D: BuilderData> VoronoiHive<D> {
+impl<D: Clone + Default> VoronoiHive<D> {
     pub fn new() -> Box<VoronoiHive<D>> {
         Box::new(VoronoiHive {
             n_seeds: 64,

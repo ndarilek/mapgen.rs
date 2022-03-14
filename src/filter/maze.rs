@@ -17,22 +17,22 @@ use std::marker::PhantomData;
 
 use crate::MapFilter;
 use crate::{
-    map::{BuilderData, Map, Tile},
+    map::{Map, Tile},
     random::Rng,
 };
 use rand::prelude::*;
 
-pub struct MazeBuilder<D: BuilderData> {
+pub struct MazeBuilder<D> {
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for MazeBuilder<D> {
+impl<D: Clone + Default> MapFilter<D> for MazeBuilder<D> {
     fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(rng, map)
     }
 }
 
-impl<D: BuilderData> MazeBuilder<D> {
+impl<D: Clone + Default> MazeBuilder<D> {
     pub fn new() -> Box<MazeBuilder<D>> {
         Box::new(MazeBuilder {
             phantom: PhantomData,
@@ -93,7 +93,7 @@ impl Cell {
     }
 }
 
-struct Grid<'a, D: BuilderData> {
+struct Grid<'a, D> {
     width: i32,
     height: i32,
     cells: Vec<Cell>,
@@ -103,7 +103,7 @@ struct Grid<'a, D: BuilderData> {
     phantom: PhantomData<D>,
 }
 
-impl<'a, D: BuilderData> Grid<'a, D> {
+impl<'a, D: Clone + Default> Grid<'a, D> {
     fn new(width: i32, height: i32, rng: &mut StdRng) -> Grid<D> {
         let mut grid = Grid {
             width,

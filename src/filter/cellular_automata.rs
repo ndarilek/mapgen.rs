@@ -23,24 +23,23 @@
 
 use std::marker::PhantomData;
 
-use crate::BuilderData;
 use crate::MapFilter;
 use crate::{Map, Tile};
 use rand::prelude::*;
 
 /// Map filter
-pub struct CellularAutomata<D: BuilderData> {
+pub struct CellularAutomata<D> {
     num_iteraction: u32,
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for CellularAutomata<D> {
+impl<D: Clone + Default> MapFilter<D> for CellularAutomata<D> {
     fn modify_map(&self, _rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(map)
     }
 }
 
-impl<D: BuilderData> CellularAutomata<D> {
+impl<D: Clone + Default> CellularAutomata<D> {
     /// Create generator which will create map with the given dimension.
     pub fn new() -> Box<CellularAutomata<D>> {
         Box::new(CellularAutomata {
@@ -60,7 +59,7 @@ impl<D: BuilderData> CellularAutomata<D> {
     }
 }
 
-fn apply_iteration<D: BuilderData>(map: &Map<D>) -> Map<D> {
+fn apply_iteration<D: Clone + Default>(map: &Map<D>) -> Map<D> {
     let mut new_map = map.clone();
 
     for y in 1..map.height - 1 {

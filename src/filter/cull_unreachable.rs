@@ -8,21 +8,21 @@ use std::marker::PhantomData;
 
 use crate::dijkstra::DijkstraMap;
 use crate::MapFilter;
-use crate::{BuilderData, Map, Tile};
+use crate::{Map, Tile};
 use rand::prelude::StdRng;
 
 /// Remove unreachable areas from the map.
-pub struct CullUnreachable<D: BuilderData> {
+pub struct CullUnreachable<D> {
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for CullUnreachable<D> {
+impl<D: Clone + Default> MapFilter<D> for CullUnreachable<D> {
     fn modify_map(&self, _: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(map)
     }
 }
 
-impl<D: BuilderData> CullUnreachable<D> {
+impl<D: Clone + Default> CullUnreachable<D> {
     #[allow(dead_code)]
     pub fn new() -> Box<CullUnreachable<D>> {
         Box::new(CullUnreachable {

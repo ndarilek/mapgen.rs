@@ -19,22 +19,22 @@
 use std::marker::PhantomData;
 
 use crate::MapFilter;
-use crate::{BuilderData, Map, Tile};
+use crate::{Map, Tile};
 use rand::prelude::*;
 
 /// Map noise generator
-pub struct NoiseGenerator<D: BuilderData> {
+pub struct NoiseGenerator<D> {
     prob: f32,
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for NoiseGenerator<D> {
+impl<D: Clone + Default> MapFilter<D> for NoiseGenerator<D> {
     fn modify_map(&self, rng: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(map, rng)
     }
 }
 
-impl<D: BuilderData> NoiseGenerator<D> {
+impl<D: Clone + Default> NoiseGenerator<D> {
     /// Create noise with custom probability
     pub fn new(prob: f32) -> Box<NoiseGenerator<D>> {
         Box::new(NoiseGenerator {

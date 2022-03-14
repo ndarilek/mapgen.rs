@@ -23,7 +23,6 @@
 use std::marker::PhantomData;
 
 use crate::geometry::Point;
-use crate::BuilderData;
 use crate::Map;
 use crate::MapFilter;
 use rand::prelude::StdRng;
@@ -43,19 +42,19 @@ pub enum YStart {
 }
 
 /// Add starting position to the map
-pub struct AreaStartingPosition<D: BuilderData> {
+pub struct AreaStartingPosition<D> {
     x: XStart,
     y: YStart,
     phantom: PhantomData<D>,
 }
 
-impl<D: BuilderData> MapFilter<D> for AreaStartingPosition<D> {
+impl<D: Clone + Default> MapFilter<D> for AreaStartingPosition<D> {
     fn modify_map(&self, _: &mut StdRng, map: &Map<D>) -> Map<D> {
         self.build(map)
     }
 }
 
-impl<D: BuilderData> AreaStartingPosition<D> {
+impl<D: Clone + Default> AreaStartingPosition<D> {
     /// Create new modifier with given region
     pub fn new(x: XStart, y: YStart) -> Box<AreaStartingPosition<D>> {
         Box::new(AreaStartingPosition {
