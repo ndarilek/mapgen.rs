@@ -12,9 +12,13 @@ struct MyData {
 
 struct IncrementData;
 
-impl<D: Clone + Default> MapFilter<D> for IncrementData {
-    fn modify_map(&self, rng: &mut rand::prelude::StdRng, map: &mapgen::Map<D>) -> mapgen::Map<D> {
-        let map = map.clone();
+impl MapFilter<MyData> for IncrementData {
+    fn modify_map(
+        &self,
+        _rng: &mut rand::prelude::StdRng,
+        map: &mapgen::Map<MyData>,
+    ) -> mapgen::Map<MyData> {
+        let mut map = map.clone();
         map.data.value += 1;
         map
     }
@@ -29,5 +33,5 @@ fn main() {
         .with(Box::new(IncrementData))
         .build();
 
-    println!("{:}", &map);
+    println!("{:}\n{}", map, map.data.value);
 }
