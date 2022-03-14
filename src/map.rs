@@ -84,11 +84,12 @@ impl<D: Clone + Default> Map<D> {
     }
 
     /// Create map from given string
+    #[allow(clippy::needless_range_loop)]
     pub fn from_string(map_string: &str) -> Map<D> {
         let lines: Vec<&str> = map_string
-            .split("\n")
+            .split('\n')
             .map(|l| l.trim())
-            .filter(|l| l.len() > 0)
+            .filter(|l| !l.is_empty())
             .collect();
         let cols = lines
             .iter()
@@ -157,7 +158,7 @@ impl<D: Clone + Default> Map<D> {
 
     // Check if given tile can be accessed
     fn is_exit_valid(&self, x: usize, y: usize) -> bool {
-        self.at(x, y).is_blocked == false
+        !self.at(x, y).is_blocked
     }
 
     /// Modify tile at the given location
@@ -276,7 +277,7 @@ impl<D: Clone + Default> fmt::Display for Map<D> {
                 .map(|x| if self.at(x, y).is_blocked { '#' } else { ' ' } as u8)
                 .collect();
             let line = String::from_utf8(bytes).expect("Can't convert map to string");
-            let _ = write!(f, "{}\n", line);
+            let _ = writeln!(f, "{}", line);
         }
         Ok(())
     }
@@ -316,7 +317,7 @@ mod tests {
             if i == 0 || i == 9 {
                 assert!(map.at(i, 1).is_blocked);
             } else {
-                assert!(map.at(i, 1).is_blocked == false);
+                assert!(map.at(i, 1).is_walkable());
             }
         }
     }
@@ -344,7 +345,7 @@ mod tests {
                 if x == 0 || y == 0 || x == 4 || y == 4 {
                     assert!(map.at(x, y).is_blocked);
                 } else {
-                    assert!(map.at(x, y).is_blocked == false);
+                    assert!(map.at(x, y).is_walkable());
                 }
             }
         }

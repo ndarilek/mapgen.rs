@@ -47,9 +47,8 @@ impl<D: Clone + Default> BspRooms<D> {
 
     fn build_rooms(&self, map: &Map<D>, rng: &mut StdRng) -> Map<D> {
         let mut new_map = map.clone();
-        let mut rects: Vec<Rect> = Vec::new();
         // Start with a single map-sized rectangle
-        rects.push(Rect::new(2, 2, new_map.width - 5, new_map.height - 5));
+        let mut rects = vec![Rect::new(2, 2, new_map.width - 5, new_map.height - 5)];
         let first_room = rects[0];
         rects.append(&mut self.split_into_subrects(first_room)); // Divide the first room
 
@@ -98,7 +97,7 @@ impl<D: Clone + Default> BspRooms<D> {
         rects
     }
 
-    fn get_random_rect(&self, rng: &mut StdRng, rects: &Vec<Rect>) -> Rect {
+    fn get_random_rect(&self, rng: &mut StdRng, rects: &[Rect]) -> Rect {
         if rects.len() == 1 {
             return rects[0];
         }
