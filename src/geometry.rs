@@ -50,9 +50,14 @@ impl Rect {
         Rect::new(x as usize, y as usize, width as usize, height as usize)
     }
 
-    /// Returns true if this overlaps with other
+    /// Returns `true` if this overlaps with `other`
     pub fn intersect(&self, other: &Rect) -> bool {
         self.x1 <= other.x2 && self.x2 >= other.x1 && self.y1 <= other.y2 && self.y2 >= other.y1
+    }
+
+    /// Returns `true` if this contains `point`
+    pub fn contains(self, point: &Point) -> bool {
+        point.x > self.x1 && point.x < self.x2 && point.y > self.y1 && point.y < self.y2
     }
 
     pub fn center(&self) -> Point {
@@ -112,6 +117,18 @@ mod tests {
         let rect1 = Rect::new(10, 10, 40, 40);
         let rect2 = Rect::new(30, 30, 60, 60);
         assert!(rect1.intersect(&rect2));
+    }
+
+    #[test]
+    fn test_contains() {
+        let rect = Rect::new(10, 10, 5, 5);
+        assert!(rect.contains(&rect.center()));
+        let p = Point::new(5, 5);
+        assert!(!rect.contains(&p));
+        let p = Point::new(10, 10);
+        assert!(!rect.contains(&p));
+        let p = Point::new(11, 11);
+        assert!(rect.contains(&p));
     }
 
     #[test]
